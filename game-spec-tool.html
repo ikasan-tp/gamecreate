@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ゲーム仕様書制作</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment:     #f2e8d0;
+  --parchment-dark:#e0d0a8;
+  --parchment-deep:#c8b882;
+  --ink:           #2c1e0f;
+  --ink-faded:     #5a3e28;
+  --ink-light:     #7a5c38;
+  --red-ink:       #8b2020;
+  --gold:          #9a7c2e;
+  --gold-bright:   #c4a44a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Serif JP', Georgia, serif;
+  background: #1a0f05;
+  background-image: radial-gradient(ellipse at 20% 10%, #2e1a08 0%, transparent 50%), radial-gradient(ellipse at 80% 90%, #150a02 0%, transparent 50%);
+  min-height: 100vh;
+  color: var(--ink);
+  padding: 40px 16px 80px;
+  overflow-x: hidden;
+}
+.page-wrap { position: relative; max-width: 860px; margin: 0 auto; }
+.parchment {
+  background: linear-gradient(170deg, #f5edd8 0%, #ede0be 30%, #f0e6c8 60%, #e8d8a8 100%);
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px #8b6a2e, 0 0 0 3px #c4a44a, 0 0 0 4px #8b6a2e, 6px 8px 24px rgba(0,0,0,0.6), inset 0 0 60px rgba(160,120,60,0.1);
+  padding: 56px 64px 72px;
+  position: relative;
+  overflow: hidden;
+  animation: unfurl 0.8s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes unfurl { from { opacity:0; transform:scaleY(0.94) translateY(16px); } to { opacity:1; transform:scaleY(1) translateY(0); } }
+.parchment::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background: radial-gradient(ellipse 80% 18% at 50% 0%, rgba(140,100,40,0.22) 0%, transparent 70%),
+              radial-gradient(ellipse 80% 18% at 50% 100%, rgba(100,70,20,0.28) 0%, transparent 70%),
+              radial-gradient(ellipse 18% 80% at 0% 50%, rgba(120,85,30,0.18) 0%, transparent 70%),
+              radial-gradient(ellipse 18% 80% at 100% 50%, rgba(120,85,30,0.18) 0%, transparent 70%);
+}
+@media (max-width:640px) { .parchment { padding:36px 24px 48px; } }
+.deco-border { border:2px solid var(--gold); padding:40px 40px 48px; position:relative; }
+.corner { position:absolute; font-size:16px; color:var(--gold-bright); line-height:1; }
+.corner.tl { top:-9px; left:-9px; } .corner.tr { top:-9px; right:-9px; transform:scaleX(-1); }
+.corner.bl { bottom:-9px; left:-9px; transform:scaleY(-1); } .corner.br { bottom:-9px; right:-9px; transform:scale(-1); }
+@media (max-width:640px) { .deco-border { padding:24px 16px 32px; } }
+header { text-align:center; margin-bottom:44px; }
+.title-ornament { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:18px; color:var(--gold); font-size:18px; }
+.title-ornament span { flex:1; height:1px; background:linear-gradient(90deg, transparent, var(--gold), transparent); }
+h1 { font-family:'Cinzel Decorative', serif; font-size:clamp(18px,4vw,30px); font-weight:700; color:var(--ink); letter-spacing:0.05em; line-height:1.3; margin-bottom:10px; text-shadow:1px 1px 0 rgba(200,180,100,0.35); }
+.subtitle { font-family:'IM Fell English', serif; font-style:italic; font-size:13px; color:var(--ink-faded); letter-spacing:0.04em; }
+.progress-scroll { position:sticky; top:0; z-index:50; background:rgba(22,12,4,0.96); border-bottom:2px solid var(--gold); padding:10px 20px; display:flex; align-items:center; justify-content:space-between; margin:0 -64px 40px; backdrop-filter:blur(4px); }
+@media (max-width:640px) { .progress-scroll { margin:0 -24px 28px; } }
+.scroll-seals { display:flex; gap:6px; flex:1; }
+.seal { flex:1; height:5px; background:rgba(196,164,74,0.18); border:1px solid rgba(196,164,74,0.25); cursor:pointer; transition:background 0.3s; }
+.seal.done { background:var(--gold); } .seal.active { background:rgba(196,164,74,0.45); }
+.progress-label { font-family:'Cinzel',serif; font-size:10px; color:var(--gold); letter-spacing:0.12em; white-space:nowrap; margin-left:14px; text-transform:uppercase; }
+.tome-section { margin-bottom:32px; animation:fadeIn 0.5s ease both; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+.tome-section:nth-child(1){animation-delay:.05s} .tome-section:nth-child(2){animation-delay:.1s}
+.tome-section:nth-child(3){animation-delay:.15s} .tome-section:nth-child(4){animation-delay:.2s}
+.tome-section:nth-child(5){animation-delay:.25s} .tome-section:nth-child(6){animation-delay:.3s}
+.tome-section:nth-child(7){animation-delay:.35s}
+.section-head { display:flex; align-items:center; gap:12px; cursor:pointer; padding:10px 0; border-bottom:1px solid var(--parchment-deep); user-select:none; transition:border-color 0.2s; }
+.section-head:hover { border-color:var(--gold); }
+.section-rune { font-family:'Cinzel',serif; font-size:10px; font-weight:700; letter-spacing:0.1em; color:var(--red-ink); border:1px solid var(--red-ink); padding:2px 6px; flex-shrink:0; background:rgba(139,32,32,0.05); }
+.section-title-text { font-family:'Cinzel',serif; font-size:13px; font-weight:600; letter-spacing:0.08em; color:var(--ink); flex:1; }
+.section-chevron { font-size:12px; color:var(--gold); transition:transform 0.3s; font-style:normal; }
+.section-chevron.open { transform:rotate(90deg); }
+.section-body { display:none; padding-top:22px; } .section-body.open { display:block; }
+.field-group { margin-bottom:20px; } .field-group:last-child { margin-bottom:0; }
+label { display:block; font-family:'Cinzel',serif; font-size:9px; font-weight:600; letter-spacing:0.15em; color:var(--ink-faded); text-transform:uppercase; margin-bottom:6px; }
+label .req { color:var(--red-ink); margin-left:2px; }
+label .hint { font-family:'Noto Serif JP',serif; text-transform:none; letter-spacing:0; font-size:10px; color:var(--ink-light); margin-left:6px; font-weight:400; }
+input[type="text"], select, textarea {
+  width:100%; background:rgba(242,232,208,0.45); border:none; border-bottom:1px solid var(--parchment-deep);
+  color:var(--ink); font-family:'Noto Serif JP',serif; font-size:14px; padding:8px 4px; outline:none;
+  transition:border-color 0.2s,background 0.2s; resize:vertical; border-radius:0; -webkit-appearance:none;
+}
+input:focus, select:focus, textarea:focus { border-bottom-color:var(--gold); background:rgba(255,248,228,0.65); }
+textarea { min-height:90px; border:1px solid var(--parchment-deep); padding:10px 12px; background:rgba(242,232,208,0.35); }
+textarea:focus { border-color:var(--gold); background:rgba(255,248,228,0.65); }
+textarea.tall { min-height:130px; }
+select { cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a7c2e'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; padding-right:28px; }
+select option { background:#f2e8d0; color:var(--ink); }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+@media (max-width:560px) { .field-row { grid-template-columns:1fr; gap:0; } }
+.ink-rule { border:none; height:1px; background:linear-gradient(90deg,transparent,var(--parchment-deep) 20%,var(--parchment-deep) 80%,transparent); margin:6px 0 22px; }
+.tag-container { border:1px solid var(--parchment-deep); background:rgba(242,232,208,0.35); padding:6px 8px; display:flex; flex-wrap:wrap; gap:6px; min-height:42px; cursor:text; transition:border-color 0.2s; }
+.tag-container:focus-within { border-color:var(--gold); background:rgba(255,248,228,0.65); }
+.tag { display:inline-flex; align-items:center; gap:5px; background:rgba(154,124,46,0.1); border:1px solid rgba(154,124,46,0.4); color:var(--ink-faded); font-family:'Noto Serif JP',serif; font-size:12px; padding:2px 8px; animation:popIn 0.2s ease both; }
+@keyframes popIn { from{opacity:0;transform:scale(0.85);} to{opacity:1;transform:scale(1);} }
+.tag-remove { cursor:pointer; color:var(--red-ink); opacity:0.6; font-size:13px; line-height:1; }
+.tag-remove:hover { opacity:1; }
+.tag-input { border:none; background:transparent; outline:none; color:var(--ink); font-family:'Noto Serif JP',serif; font-size:13px; flex:1; min-width:100px; padding:3px 4px; }
+.repeat-row { display:grid; gap:10px; margin-bottom:10px; padding:12px 14px; background:rgba(200,184,130,0.12); border-left:2px solid var(--parchment-deep); animation:fadeIn 0.3s ease both; }
+.repeat-row.cols2 { grid-template-columns:1fr 1fr auto; align-items:end; }
+.repeat-row.cols3 { grid-template-columns:1fr 1fr 1fr auto; align-items:end; }
+@media (max-width:560px) { .repeat-row.cols2, .repeat-row.cols3 { grid-template-columns:1fr; } }
+.repeat-row label { font-size:9px; margin-bottom:3px; }
+.btn-rm { background:transparent; border:1px solid rgba(139,32,32,0.25); color:var(--red-ink); width:28px; height:28px; cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center; flex-shrink:0; opacity:0.65; transition:all 0.2s; }
+.btn-rm:hover { background:rgba(139,32,32,0.08); opacity:1; }
+.btn-add { display:flex; align-items:center; gap:8px; background:transparent; border:1px dashed var(--parchment-deep); color:var(--ink-light); font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.1em; padding:9px 16px; cursor:pointer; transition:all 0.2s; width:100%; margin-top:6px; text-transform:uppercase; }
+.btn-add:hover { border-color:var(--gold); color:var(--gold); background:rgba(154,124,46,0.05); }
+.actions { display:flex; gap:14px; margin-top:44px; justify-content:center; flex-wrap:wrap; animation:fadeIn 0.6s ease 0.5s both; }
+.btn-wax { font-family:'Cinzel',serif; font-size:11px; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; padding:13px 32px; border:2px solid var(--gold); cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden; }
+.btn-wax.primary { background:var(--ink); color:var(--gold-bright); border-color:var(--gold); }
+.btn-wax.primary:hover { background:var(--ink-faded); box-shadow:0 4px 16px rgba(154,124,46,0.3); transform:translateY(-1px); }
+.btn-wax.secondary { background:transparent; color:var(--ink-faded); border-color:var(--parchment-deep); }
+.btn-wax.secondary:hover { border-color:var(--ink-light); color:var(--ink); }
+.modal-overlay { position:fixed; inset:0; background:rgba(8,4,1,0.88); backdrop-filter:blur(6px); z-index:200; display:none; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; }
+.modal-overlay.open { display:flex; }
+.modal-parchment { background:linear-gradient(168deg,#f5edd8 0%,#ede0be 40%,#f0e5c4 100%); border:2px solid var(--gold); box-shadow:0 0 0 1px #8b6a2e, 8px 10px 28px rgba(0,0,0,0.65); width:100%; max-width:760px; animation:slideUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+@keyframes slideUp { from{opacity:0;transform:translateY(28px) scale(0.97);} to{opacity:1;transform:translateY(0) scale(1);} }
+.modal-head { display:flex; align-items:center; justify-content:space-between; padding:16px 28px; border-bottom:1px solid var(--parchment-deep); background:rgba(200,184,130,0.18); }
+.modal-head h2 { font-family:'Cinzel',serif; font-size:13px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink); }
+.modal-close { background:transparent; border:1px solid var(--parchment-deep); color:var(--ink-faded); width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:15px; transition:all 0.2s; }
+.modal-close:hover { border-color:var(--red-ink); color:var(--red-ink); }
+.modal-body { padding:28px 32px; max-height:62vh; overflow-y:auto; }
+.modal-footer { padding:16px 28px; border-top:1px solid var(--parchment-deep); display:flex; gap:10px; justify-content:flex-end; background:rgba(200,184,130,0.1); }
+.preview-doc { font-family:'Noto Serif JP',serif; color:var(--ink); font-size:13px; line-height:1.9; }
+.preview-doc .doc-title { font-family:'Cinzel Decorative',serif; font-size:20px; text-align:center; margin-bottom:6px; }
+.preview-meta { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--parchment-deep); font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.1em; color:var(--ink-faded); text-transform:uppercase; }
+.preview-sec { margin-bottom:20px; padding-bottom:18px; border-bottom:1px solid rgba(200,184,130,0.5); }
+.preview-sec h3 { font-family:'Cinzel',serif; font-size:10px; font-weight:700; letter-spacing:0.16em; color:var(--red-ink); text-transform:uppercase; margin-bottom:10px; }
+.preview-sec table { width:100%; border-collapse:collapse; font-size:12px; }
+.preview-sec th { text-align:left; padding:5px 10px 5px 0; font-family:'Cinzel',serif; font-size:8px; color:var(--ink-faded); font-weight:600; letter-spacing:0.12em; text-transform:uppercase; border-bottom:1px solid var(--parchment-deep); width:26%; vertical-align:top; }
+.preview-sec td { padding:7px 10px 7px 0; border-bottom:1px solid rgba(200,184,130,0.3); vertical-align:top; white-space:pre-wrap; }
+.preview-tag { display:inline-block; border:1px solid var(--gold); color:var(--ink-faded); font-size:10px; padding:1px 7px; margin:2px; }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:var(--parchment-dark); } ::-webkit-scrollbar-thumb { background:var(--parchment-deep); } ::-webkit-scrollbar-thumb:hover { background:var(--gold); }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+<div class="parchment">
+  <div class="deco-border">
+    <span class="corner tl">✦</span><span class="corner tr">✦</span>
+    <span class="corner bl">✦</span><span class="corner br">✦</span>
+    <header>
+      <div class="title-ornament"><span></span>⚜<span></span></div>
+      <h1>ゲーム仕様書</h1>
+      <p class="subtitle">— The Grand Tome of Game Specifications —</p>
+    </header>
+    <div class="progress-scroll">
+      <div class="scroll-seals" id="progressSeals"></div>
+      <span class="progress-label" id="progressLabel">記入済 0 / 7</span>
+    </div>
+    <form id="specForm">
+
+      <!-- I -->
+      <div class="tome-section" data-idx="0">
+        <div class="section-head" onclick="toggleSec(0)">
+          <span class="section-rune">I</span><span class="section-title-text">基本情報</span>
+          <i class="section-chevron open" id="chev-0">▶</i>
+        </div>
+        <div class="section-body open" id="sbody-0">
+          <hr class="ink-rule">
+          <div class="field-group"><label>ゲームタイトル <span class="req">✦</span></label><input type="text" id="title" placeholder="例：クロノス・エコー" /></div>
+          <div class="field-row">
+            <div class="field-group"><label>ジャンル</label><select id="genre"><option value="">— 選択 —</option><option>RPG</option><option>アクション</option><option>アクションRPG</option><option>シューティング</option><option>パズル</option><option>シミュレーション</option><option>ストラテジー</option><option>アドベンチャー</option><option>ノベル</option><option>スポーツ</option><option>その他</option></select></div>
+            <div class="field-group"><label>プラットフォーム</label><select id="platform"><option value="">— 選択 —</option><option>PC (Windows)</option><option>PC (Mac)</option><option>PC (Windows / Mac)</option><option>iOS</option><option>Android</option><option>iOS / Android</option><option>Nintendo Switch</option><option>PlayStation 5</option><option>Xbox Series X</option><option>マルチプラットフォーム</option><option>ブラウザ</option></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label>対象年齢</label><select id="ageRating"><option value="">— 選択 —</option><option>全年齢</option><option>CERO A（全年齢）</option><option>CERO B（12歳以上）</option><option>CERO C（15歳以上）</option><option>CERO D（17歳以上）</option><option>CERO Z（18歳以上）</option></select></div>
+            <div class="field-group"><label>想定プレイ時間</label><input type="text" id="playTime" placeholder="例：メインストーリー約30時間" /></div>
+          </div>
+          <div class="field-group"><label>開発エンジン・ツール</label><input type="text" id="engine" placeholder="例：Unity 2023.2、Unreal Engine 5" /></div>
+        </div>
+      </div>
+
+      <!-- II -->
+      <div class="tome-section" data-idx="1">
+        <div class="section-head" onclick="toggleSec(1)">
+          <span class="section-rune">II</span><span class="section-title-text">コンセプト・世界観</span>
+          <i class="section-chevron" id="chev-1">▶</i>
+        </div>
+        <div class="section-body" id="sbody-1">
+          <hr class="ink-rule">
+          <div class="field-group"><label>エレベーターピッチ <span class="hint">（一言でゲームを説明）</span></label><input type="text" id="elevator" placeholder="例：タイムループする記憶の迷宮を解き明かすミステリーRPG" /></div>
+          <div class="field-group"><label>ゲームの概要・背景設定</label><textarea class="tall" id="overview" placeholder="ゲームの世界観、舞台設定、物語の背景などを記述してください。"></textarea></div>
+          <div class="field-group">
+            <label>コアコンセプト <span class="hint">（入力してEnterで追加）</span></label>
+            <div class="tag-container" id="conceptTagContainer"><input class="tag-input" id="conceptTagInput" placeholder="例：タイムループ、探索…" /></div>
+            <input type="hidden" id="conceptTags" />
+          </div>
+          <div class="field-group"><label>参考作品・インスピレーション</label><input type="text" id="reference" placeholder="例：Celeste、Hollow Knight、UNDERTALE" /></div>
+        </div>
+      </div>
+
+      <!-- III -->
+      <div class="tome-section" data-idx="2">
+        <div class="section-head" onclick="toggleSec(2)">
+          <span class="section-rune">III</span><span class="section-title-text">ゲームプレイ・メカニクス</span>
+          <i class="section-chevron" id="chev-2">▶</i>
+        </div>
+        <div class="section-body" id="sbody-2">
+          <hr class="ink-rule">
+          <div class="field-group"><label>コアループ</label><textarea id="coreLoop" placeholder="例：探索 → 戦闘 → 素材収集 → 装備強化 → より深いエリアへ"></textarea></div>
+          <div class="field-group"><label>主要メカニクス</label><div id="mechanicsRows"></div><button type="button" class="btn-add" onclick="addMech()">✦ メカニクスを追加</button></div>
+          <div class="field-group"><label>操作方法</label><textarea id="controls" placeholder="例：左スティックで移動、Aボタンでジャンプ、右トリガーで攻撃"></textarea></div>
+          <div class="field-group"><label>難易度設定</label><select id="difficulty"><option value="">— 選択 —</option><option>固定難易度（1段階のみ）</option><option>複数難易度選択制</option><option>アダプティブ難易度（自動調整）</option><option>カスタム難易度</option></select></div>
+        </div>
+      </div>
+
+      <!-- IV -->
+      <div class="tome-section" data-idx="3">
+        <div class="section-head" onclick="toggleSec(3)">
+          <span class="section-rune">IV</span><span class="section-title-text">キャラクター設定</span>
+          <i class="section-chevron" id="chev-3">▶</i>
+        </div>
+        <div class="section-body" id="sbody-3">
+          <hr class="ink-rule">
+          <div class="field-group"><label>主要キャラクター</label><div id="characterRows"></div><button type="button" class="btn-add" onclick="addChar()">✦ キャラクターを追加</button></div>
+          <div class="field-group"><label>成長システム</label><textarea id="growthSystem" placeholder="例：経験値によるレベルアップ、スキルツリー解放、装備強化"></textarea></div>
+        </div>
+      </div>
+
+      <!-- V -->
+      <div class="tome-section" data-idx="4">
+        <div class="section-head" onclick="toggleSec(4)">
+          <span class="section-rune">V</span><span class="section-title-text">ストーリー・シナリオ</span>
+          <i class="section-chevron" id="chev-4">▶</i>
+        </div>
+        <div class="section-body" id="sbody-4">
+          <hr class="ink-rule">
+          <div class="field-group"><label>ストーリー概要</label><textarea class="tall" id="story" placeholder="主要なプロット、主人公の目的、主な葛藤などを記述してください。"></textarea></div>
+          <div class="field-group"><label>章・ステージ構成</label><div id="chapterRows"></div><button type="button" class="btn-add" onclick="addChap()">✦ 章・ステージを追加</button></div>
+          <div class="field-group"><label>エンディング数</label><select id="endings"><option value="">— 選択 —</option><option>1つ（固定エンド）</option><option>2〜3つ</option><option>4〜6つ</option><option>7つ以上（マルチエンド）</option></select></div>
+        </div>
+      </div>
+
+      <!-- VI -->
+      <div class="tome-section" data-idx="5">
+        <div class="section-head" onclick="toggleSec(5)">
+          <span class="section-rune">VI</span><span class="section-title-text">ビジュアル・サウンド</span>
+          <i class="section-chevron" id="chev-5">▶</i>
+        </div>
+        <div class="section-body" id="sbody-5">
+          <hr class="ink-rule">
+          <div class="field-row">
+            <div class="field-group"><label>アートスタイル</label><select id="artStyle"><option value="">— 選択 —</option><option>ピクセルアート</option><option>2Dアニメ調</option><option>3Dローポリ</option><option>3Dリアル調</option><option>3Dカートゥーン調</option><option>水彩・絵本調</option><option>ミニマル</option><option>その他</option></select></div>
+            <div class="field-group"><label>視点・カメラ</label><select id="camera"><option value="">— 選択 —</option><option>横スクロール（2D）</option><option>見下ろし（2D）</option><option>一人称（FPS）</option><option>三人称（TPS）</option><option>固定カメラ</option><option>アイソメトリック</option><option>ビジュアルノベル</option></select></div>
+          </div>
+          <div class="field-group"><label>カラーパレット・雰囲気</label><input type="text" id="colorMood" placeholder="例：ダークファンタジー、冷色系、荒廃した世界観" /></div>
+          <div class="field-row">
+            <div class="field-group"><label>BGMスタイル</label><select id="bgmStyle"><option value="">— 選択 —</option><option>オーケストラ</option><option>エレクトロニック</option><option>チップチューン</option><option>アコースティック</option><option>ジャズ・ブルース</option><option>アンビエント</option><option>ロック・メタル</option><option>和風・民族音楽</option><option>ミックス</option></select></div>
+            <div class="field-group"><label>ボイス</label><select id="voice"><option value="">— 選択 —</option><option>フルボイス</option><option>イベントシーンのみ</option><option>ボイスなし</option><option>主人公のみボイスなし</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VII -->
+      <div class="tome-section" data-idx="6">
+        <div class="section-head" onclick="toggleSec(6)">
+          <span class="section-rune">VII</span><span class="section-title-text">開発・運用計画</span>
+          <i class="section-chevron" id="chev-6">▶</i>
+        </div>
+        <div class="section-body" id="sbody-6">
+          <hr class="ink-rule">
+          <div class="field-row">
+            <div class="field-group"><label>リリース形態</label><select id="releaseType"><option value="">— 選択 —</option><option>買い切り</option><option>基本無料（F2P）</option><option>サブスクリプション</option><option>アーリーアクセス後正式リリース</option></select></div>
+            <div class="field-group"><label>マルチプレイ</label><select id="multiplay"><option value="">— 選択 —</option><option>シングルプレイのみ</option><option>ローカルマルチ対応</option><option>オンラインマルチ対応</option><option>両対応</option><option>MMO</option></select></div>
+          </div>
+          <div class="field-group"><label>マイルストーン</label><div id="milestoneRows"></div><button type="button" class="btn-add" onclick="addMile()">✦ マイルストーンを追加</button></div>
+          <div class="field-group"><label>備考・特記事項</label><textarea id="notes" placeholder="追加の仕様、制約、特記事項など"></textarea></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-wax secondary" onclick="clearForm()">入力をリセット</button>
+        <button type="button" class="btn-wax primary" onclick="previewDoc()">⚜ 仕様書をプレビュー</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="previewModal">
+  <div class="modal-parchment">
+    <div class="modal-head">
+      <h2>⚜ 仕様書プレビュー</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body"><div class="preview-doc" id="previewContent"></div></div>
+    <div class="modal-footer">
+      <button class="btn-wax secondary" onclick="closeModal()">閉じる</button>
+      <button class="btn-wax primary" onclick="downloadHTML()">HTMLファイルで保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSec(i) {
+  const body = document.getElementById('sbody-'+i);
+  const chev = document.getElementById('chev-'+i);
+  chev.classList.toggle('open', body.classList.toggle('open'));
+}
+function initProgress() {
+  const c = document.getElementById('progressSeals'); c.innerHTML='';
+  const labels=['基本情報','コンセプト','メカニクス','キャラクター','ストーリー','ビジュアル','開発計画'];
+  for(let i=0;i<7;i++){const d=document.createElement('div');d.className='seal';d.id='seal-'+i;d.title=labels[i];d.onclick=()=>document.querySelector('[data-idx="'+i+'"]').scrollIntoView({behavior:'smooth',block:'start'});c.appendChild(d);}
+}
+function updateProgress() {
+  const checks=[['title'],['elevator','overview'],['coreLoop'],[],['story'],['artStyle'],['releaseType']];
+  let done=0;
+  checks.forEach((fields,i)=>{
+    const ok=fields.length===0||fields.some(f=>(document.getElementById(f)?.value||'').trim());
+    const s=document.getElementById('seal-'+i);
+    s.className=ok?'seal done':'seal active';
+    if(ok)done++;
+  });
+  document.getElementById('progressLabel').textContent='入力済み '+done+' / 7';
+}
+function initTag(cid,iid,hid){
+  const input=document.getElementById(iid),hidden=document.getElementById(hid);
+  function getTags(){return hidden.value?hidden.value.split('、').filter(Boolean):[];}
+  function render(){
+    const tags=getTags(),cont=document.getElementById(cid);
+    cont.querySelectorAll('.tag').forEach(t=>t.remove());
+    tags.forEach((tag,i)=>{const el=document.createElement('span');el.className='tag';el.innerHTML=tag+'<span class="tag-remove" data-i="'+i+'">×</span>';cont.insertBefore(el,input);});
+    hidden.value=tags.join('、');
+  }
+  input.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===',')&&input.value.trim()){e.preventDefault();const tags=getTags();tags.push(input.value.trim().replace(/,/g,''));hidden.value=tags.join('、');input.value='';render();updateProgress();}});
+  document.getElementById(cid).addEventListener('click',e=>{if(e.target.classList.contains('tag-remove')){const tags=getTags();tags.splice(+e.target.dataset.i,1);hidden.value=tags.join('、');render();updateProgress();}input.focus();});
+}
+function mkRow(cls,cols){
+  const d=document.createElement('div');d.className='repeat-row '+cls;
+  d.innerHTML=cols.map(c=>'<div><label>'+c.l+'</label><input type="text" class="'+c.c+'" placeholder="'+c.p+'" /></div>').join('')+'<button type="button" class="btn-rm" onclick="this.parentElement.remove()">−</button>';
+  return d;
+}
+function addMech(){document.getElementById('mechanicsRows').appendChild(mkRow('cols2',[{l:'メカニクス名',c:'mech-name',p:'例：タイムリワインド'},{l:'説明',c:'mech-desc',p:'例：最大10秒間時間を巻き戻せる'}]));}
+function addChar(){document.getElementById('characterRows').appendChild(mkRow('cols3',[{l:'名前',c:'char-name',p:'例：アリス'},{l:'役割',c:'char-role',p:'例：主人公'},{l:'説明',c:'char-desc',p:'例：記憶を失った少女'}]));}
+function addChap(){document.getElementById('chapterRows').appendChild(mkRow('cols2',[{l:'章・ステージ名',c:'chap-name',p:'例：第1章「目覚め」'},{l:'概要',c:'chap-desc',p:'例：主人公が街で覚醒する'}]));}
+function addMile(){document.getElementById('milestoneRows').appendChild(mkRow('cols2',[{l:'時期・日付',c:'ms-date',p:'例：2025年Q1'},{l:'内容',c:'ms-content',p:'例：プロトタイプ完成'}]));}
+function g(id){return document.getElementById(id)?.value||'';}
+function collectRows(cid,...cls){return[...document.getElementById(cid).querySelectorAll('.repeat-row')].map(r=>Object.fromEntries(cls.map((c,i)=>[String.fromCharCode(97+i),r.querySelector('.'+c)?.value||'']))).filter(o=>Object.values(o).some(Boolean));}
+function collectData(){return{title:g('title'),genre:g('genre'),platform:g('platform'),ageRating:g('ageRating'),playTime:g('playTime'),engine:g('engine'),elevator:g('elevator'),overview:g('overview'),concepts:g('conceptTags'),reference:g('reference'),coreLoop:g('coreLoop'),controls:g('controls'),difficulty:g('difficulty'),growthSystem:g('growthSystem'),story:g('story'),endings:g('endings'),artStyle:g('artStyle'),camera:g('camera'),colorMood:g('colorMood'),bgmStyle:g('bgmStyle'),voice:g('voice'),releaseType:g('releaseType'),multiplay:g('multiplay'),notes:g('notes'),mechanics:collectRows('mechanicsRows','mech-name','mech-desc'),characters:collectRows('characterRows','char-name','char-role','char-desc'),chapters:collectRows('chapterRows','chap-name','chap-desc'),milestones:collectRows('milestoneRows','ms-date','ms-content')};}
+function previewDoc(){
+  const d=collectData();
+  if(!d.title){alert('ゲームタイトルを入力してください。');return;}
+  const row=(th,td)=>td?'<tr><th>'+th+'</th><td>'+td.replace(/\n/g,'<br>')+'</td></tr>':'';
+  const tags=str=>str?str.split('、').map(t=>'<span class="preview-tag">'+t+'</span>').join(' '):'';
+  const now=new Date().toLocaleDateString('ja-JP');
+  const sec=(title,rows)=>rows.trim()?'<div class="preview-sec"><h3>'+title+'</h3><table>'+rows+'</table></div>':'';
+  let html='<p class="doc-title">'+d.title+'</p><div class="preview-meta"><span>記録日：'+now+'</span>'+(d.genre?'<span>ジャンル：'+d.genre+'</span>':'')+(d.platform?'<span>プラットフォーム：'+d.platform+'</span>':'')+(d.ageRating?'<span>対象：'+d.ageRating+'</span>':'')+'</div>';
+  html+=sec('基本情報',row('プレイ時間',d.playTime)+row('開発エンジン',d.engine));
+  html+=sec('コンセプト・世界観',row('エレベーターピッチ',d.elevator)+(d.concepts?'<tr><th>コアコンセプト</th><td>'+tags(d.concepts)+'</td></tr>':'')+row('ゲーム概要',d.overview)+row('参考作品',d.reference));
+  html+=sec('ゲームプレイ・メカニクス',row('コアループ',d.coreLoop)+(d.mechanics.length?'<tr><th>主要メカニクス</th><td>'+d.mechanics.map(m=>'<b>'+m.a+'</b>：'+m.b).join('<br>')+'</td></tr>':'')+row('操作方法',d.controls)+row('難易度',d.difficulty));
+  html+=sec('キャラクター設定',(d.characters.length?'<tr><th>主要キャラクター</th><td>'+d.characters.map(c=>'<b>'+c.a+'</b>（'+c.b+'）'+(c.c?'：'+c.c:'')).join('<br>')+'</td></tr>':'')+row('成長システム',d.growthSystem));
+  html+=sec('ストーリー・シナリオ',row('ストーリー概要',d.story)+(d.chapters.length?'<tr><th>章・ステージ構成</th><td>'+d.chapters.map(c=>'<b>'+c.a+'</b>：'+c.b).join('<br>')+'</td></tr>':'')+row('エンディング',d.endings));
+  html+=sec('ビジュアル・サウンド',row('アートスタイル',d.artStyle)+row('視点・カメラ',d.camera)+row('カラー・雰囲気',d.colorMood)+row('BGMスタイル',d.bgmStyle)+row('ボイス',d.voice));
+  html+=sec('開発・運用計画',row('リリース形態',d.releaseType)+row('マルチプレイ',d.multiplay)+(d.milestones.length?'<tr><th>マイルストーン</th><td>'+d.milestones.map(m=>'<b>'+m.a+'</b>：'+m.b).join('<br>')+'</td></tr>':'')+row('備考',d.notes));
+  document.getElementById('previewContent').innerHTML=html;
+  document.getElementById('previewModal').classList.add('open');
+}
+function closeModal(){document.getElementById('previewModal').classList.remove('open');}
+function downloadHTML(){
+  const d=collectData(),content=document.getElementById('previewContent').innerHTML,now=new Date().toLocaleDateString('ja-JP');
+  const blob=new Blob(['<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>'+(d.title||'仕様書')+'</title><style>body{font-family:"Noto Serif JP","Hiragino Mincho ProN",Georgia,serif;max-width:840px;margin:48px auto;padding:0 32px 80px;background:#f2e8d0;color:#2c1e0f;line-height:1.9;}.doc-title{font-size:26px;font-weight:700;text-align:center;margin-bottom:6px;font-family:Georgia,serif;letter-spacing:.04em;}.preview-meta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid #c8b882;font-size:11px;color:#5a3e28;}.preview-sec{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #e0d0a8;}.preview-sec h3{font-size:10px;font-weight:700;letter-spacing:.15em;color:#8b2020;text-transform:uppercase;margin-bottom:10px;font-family:Georgia,serif;}table{width:100%;border-collapse:collapse;font-size:13px;}th{text-align:left;padding:5px 10px 5px 0;font-size:9px;color:#7a5c38;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #c8b882;width:26%;vertical-align:top;}td{padding:7px 10px 7px 0;border-bottom:1px solid #e8dab8;vertical-align:top;}.preview-tag{display:inline-block;border:1px solid #9a7c2e;color:#5a3e28;font-size:10px;padding:1px 7px;margin:2px;}footer{margin-top:48px;font-size:10px;color:#c8b882;text-align:center;letter-spacing:.1em;}</style></head><body>'+content+'<footer>記録日：'+now+' — Game Design Document</footer></body></html>'],{type:'text/html'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(d.title||'game-spec')+'_仕様書.html';a.click();
+}
+function clearForm(){
+  if(!confirm('巻物の内容をすべて消去しますか？'))return;
+  document.querySelectorAll('#specForm input[type=text],#specForm textarea,#specForm select').forEach(el=>el.value='');
+  ['mechanicsRows','characterRows','chapterRows','milestoneRows'].forEach(id=>document.getElementById(id).innerHTML='');
+  document.getElementById('conceptTagContainer').querySelectorAll('.tag').forEach(t=>t.remove());
+  document.getElementById('conceptTags').value='';
+  updateProgress();
+}
+initProgress();
+initTag('conceptTagContainer','conceptTagInput','conceptTags');
+document.getElementById('specForm').addEventListener('input',updateProgress);
+updateProgress();
+</script>
+</body>
+</html>
